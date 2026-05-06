@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- C'EST CETTE LIGNE QUI RÉSOUT LE PROBLÈME DU TÉLÉPHONE (Zoom et Décalage) -->
+    <meta name="viewport" content="width=840, maximum-scale=1.0, user-scalable=no">
     <title>Contrat Black Iris Car</title>
     <style>
         * { box-sizing: border-box; }
@@ -15,6 +16,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden; /* Empêche l'écran de bouger de gauche à droite */
         }
 
         #admin-panel {
@@ -68,6 +70,7 @@
         .field-group { padding: 5px 10px; display: flex; align-items: center; width: 100%; }
         .field-group label { font-weight: bold; font-size: 12px; margin-right: 5px; white-space: nowrap; }
         
+        /* 16px empêche définitivement Safari iPhone de zoomer */
         .field-group input, .facturation-grid input { 
             flex: 1; 
             min-width: 0; 
@@ -76,19 +79,15 @@
             border-bottom: 1px dotted #000; 
             background: transparent; 
             font-family: Arial, sans-serif; 
-            font-size: 12px; 
+            font-size: 16px; 
             padding: 2px; 
         }
         .field-group input:focus, .facturation-grid input:focus { outline: none; border-bottom: 1px solid #3498db; }
         
         .grid-inner-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
         .box-border { border-top: 1px solid #1e3a8a; }
-        
         .car-state-box { border: 1px solid #1e3a8a; margin: 5px 8px; padding: 5px; text-align: center; width: calc(100% - 16px); }
-        
-        /* MISE A JOUR : Facturation avec case avant et après le texte */
-        .facturation-grid { display: grid; grid-template-columns: 50px auto 1fr; gap: 10px; align-items: center; padding: 5px 10px; width: 100%; }
-        
+        .facturation-grid { display: grid; grid-template-columns: auto 40px auto 1fr; gap: 5px; align-items: center; padding: 5px 10px; width: 100%; }
         .signatures { display: grid; grid-template-columns: 1fr 1fr; margin-top: 20px; gap: 20px; width: 100%; }
         .sign-box { border: 2px solid #1e3a8a; height: 120px; padding: 10px; font-weight: bold; font-size: 12px; color: #1e3a8a; background: #f8f9fa; position: relative; }
         .footer { text-align: center; font-size: 11px; font-weight: bold; margin-top: 20px; }
@@ -99,16 +98,17 @@
         /* CLIENT MODE CLASSES */
         .client-mode input { border-bottom: none !important; pointer-events: none; color: #000; }
         .client-mode .facturation-grid input { border-bottom: none !important; }
-        .client-mode #stamp-controls, .client-mode #custom-stamp-controls { display: none !important; }
 
         /* STAMP & CANVAS */
-        .draggable-stamp { position: absolute; border: 2px dashed rgba(0,0,0,0.3); padding: 10px; cursor: move; color: #1e3a8a; font-weight: bold; font-family: 'Courier New', Courier, monospace; text-align: center; font-size: 14px; transform: rotate(-5deg); z-index: 10; background: rgba(255,255,255,0.4); transform-origin: center; }
+        .draggable-stamp { position: absolute; border: 2px dashed rgba(0,0,0,0.3); padding: 10px; cursor: move; color: #1e3a8a; font-weight: bold; font-family: 'Courier New', Courier, monospace; text-align: center; font-size: 14px; transform: rotate(-5deg); z-index: 10; background: rgba(255,255,255,0.4); }
         #agency-stamp { top: 20px; left: 20px; display: none; }
         .client-mode .draggable-stamp { border: none; background: transparent; pointer-events: none; }
         
         #client-signature-area { position: absolute; top: 30px; left: 10px; right: 10px; bottom: 10px; background: rgba(255,255,255,0.9); border: 1px solid red; display: none; }
         .client-mode #client-signature-area { display: block; }
-        canvas { width: 100%; height: 100%; cursor: crosshair; }
+        
+        /* touch-action: none empêche l'écran de déraper quand on signe */
+        canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; } 
         #clear-sig { position: absolute; top: -25px; right: 0; background: #e74c3c; color: white; border: none; padding: 2px 5px; font-size: 10px; cursor: pointer; }
 
         /* --- STYLES PAGE 2 --- */
@@ -132,27 +132,16 @@
         <button onclick="addStamp()">Ajouter le Cachet au contrat</button>
         <button onclick="toggleCustomTool()" style="background-color: #8e44ad;">Tamponner un autre document</button>
         <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (15 min)</button>
-        
-        <div id="stamp-controls" style="margin-top: 15px; display: none; background: #f4f6f7; padding: 10px; border-radius: 5px;">
-            <label style="font-size: 13px; font-weight: bold; color: #1e3a8a; margin-right: 10px;">Taille du cachet (Contrat) :</label>
-            <input type="range" id="stamp-size" min="0.5" max="2.5" step="0.1" value="1" oninput="resizeStamp(this.value)" style="vertical-align: middle;">
-        </div>
-
         <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 15 minutes.</p>
     </div>
 
     <!-- OUTIL DE TAMPON POUR DOCUMENTS EXTERNES -->
     <div id="custom-tool-panel">
         <h3 style="margin-top:0; color:#1e3a8a;">Outil : Tamponner un document</h3>
-        <p style="font-size: 12px; margin-bottom: 10px;">Importez une image, ajustez la taille et la position du cachet, et téléchargez l'image finale.</p>
+        <p style="font-size: 12px; margin-bottom: 10px;">Importez une image (permis, passeport, etc.), placez le cachet, et téléchargez l'image finale.</p>
         <input type="file" id="upload-doc" accept="image/*" onchange="loadCustomImage(event)">
         <button onclick="downloadStampedImage()" style="background-color: #2ecc71; float: right;">Télécharger l'image tamponnée</button>
         
-        <div id="custom-stamp-controls" style="margin-top: 10px; display: none;">
-            <label style="font-size: 12px; font-weight: bold; color: #1e3a8a;">Ajuster la taille du cachet :</label>
-            <input type="range" id="custom-stamp-size" min="0.5" max="3" step="0.1" value="1" oninput="resizeCustomStamp(this.value)">
-        </div>
-
         <div id="custom-doc-container">
             <span id="placeholder-text" style="align-self: center; color: #7f8c8d;">Aucune image sélectionnée</span>
             <img id="custom-doc-img">
@@ -217,7 +206,7 @@
                 <div class="field-group">
                     <label>CARBURANT :</label> 
                     <div class="radio-group">
-                        <label><input type="radio" name="carb" class="data-input" id="carb_sp"> Essence</label>
+                        <label><input type="radio" name="carb" class="data-input" id="carb_sp"> Sans plomb</label>
                         <label><input type="radio" name="carb" class="data-input" id="carb_gas"> Gasoil</label>
                     </div>
                 </div>
@@ -235,10 +224,10 @@
 
                 <div class="section-header box-border">FACTURATION</div>
                 <div class="facturation-grid">
-                    <input type="text" id="j_qte" class="data-input" style="text-align: center;"> <label>JOURS</label> <input type="text" id="j_prix" class="data-input">
-                    <input type="text" id="s_qte" class="data-input" style="text-align: center;"> <label>semaines</label> <input type="text" id="s_prix" class="data-input">
-                    <input type="text" id="m_qte" class="data-input" style="text-align: center;"> <label>mois</label> <input type="text" id="m_prix" class="data-input">
-                    <input type="text" id="f_qte" class="data-input" style="text-align: center;"> <label>forfait</label> <input type="text" id="f_prix" class="data-input">
+                    <label>JOURS</label> <input type="text" id="j_qte" class="data-input" style="text-align: center;"> <span style="font-weight: bold;">X</span> <input type="text" id="j_prix" class="data-input">
+                    <label>semaines</label> <input type="text" id="s_qte" class="data-input" style="text-align: center;"> <span style="font-weight: bold;">X</span> <input type="text" id="s_prix" class="data-input">
+                    <label>mois</label> <input type="text" id="m_qte" class="data-input" style="text-align: center;"> <span style="font-weight: bold;">X</span> <input type="text" id="m_prix" class="data-input">
+                    <label>forfait</label> <input type="text" id="f_qte" class="data-input" style="text-align: center;"> <span style="font-weight: bold;">X</span> <input type="text" id="f_prix" class="data-input">
                 </div>
                 
                 <div class="box-border" style="padding-top: 5px;"></div>
@@ -344,18 +333,9 @@
     </div>
 
     <script>
-        // --- GESTION DE LA TAILLE ET DU DEPLACEMENT DES CACHETS ---
+        // --- GESTION DES CACHETS DEPLAÇABLES ---
         function addStamp() {
             document.getElementById('agency-stamp').style.display = 'block';
-            document.getElementById('stamp-controls').style.display = 'block';
-        }
-
-        function resizeStamp(scale) {
-            document.getElementById('agency-stamp').style.transform = `rotate(-5deg) scale(${scale})`;
-        }
-
-        function resizeCustomStamp(scale) {
-            document.getElementById('custom-stamp').style.transform = `rotate(-5deg) scale(${scale})`;
         }
 
         dragElement(document.getElementById("agency-stamp"));
@@ -402,14 +382,12 @@
             const img = document.getElementById('custom-doc-img');
             const stamp = document.getElementById('custom-stamp');
             const placeholder = document.getElementById('placeholder-text');
-            const controls = document.getElementById('custom-stamp-controls');
             
             const file = event.target.files[0];
             if (file) {
                 img.src = URL.createObjectURL(file);
                 img.style.display = 'block';
                 stamp.style.display = 'block';
-                controls.style.display = 'block';
                 placeholder.style.display = 'none';
             }
         }
@@ -429,8 +407,6 @@
             const scaleX = canvas.width / img.clientWidth;
             const scaleY = canvas.height / img.clientHeight;
 
-            const currentScale = parseFloat(document.getElementById('custom-stamp-size').value) || 1;
-
             const stampRect = stamp.getBoundingClientRect();
             const imgRect = img.getBoundingClientRect();
             const x = (stampRect.left - imgRect.left) * scaleX;
@@ -439,8 +415,7 @@
             ctx.save();
             ctx.translate(x + (stamp.offsetWidth / 2) * scaleX, y + (stamp.offsetHeight / 2) * scaleY);
             ctx.rotate(-5 * Math.PI / 180);
-            
-            ctx.font = "bold " + (14 * scaleX * currentScale) + "px 'Courier New'";
+            ctx.font = "bold " + (14 * scaleX) + "px 'Courier New'";
             ctx.fillStyle = "rgba(30, 58, 138, 0.8)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -453,7 +428,7 @@
                 "06 02 02 04 02"
             ];
             
-            let lineHeight = 16 * scaleY * currentScale;
+            let lineHeight = 16 * scaleY;
             let startY = 0 - (lines.length / 2) * lineHeight;
 
             lines.forEach((line, i) => {
@@ -467,7 +442,7 @@
             link.click();
         }
 
-        // --- GENERATION DU LIEN CLIENT (AVEC EXPIRATION DE 15 MIN ET SAUVEGARDE DU ZOOM) ---
+        // --- GENERATION DU LIEN CLIENT (AVEC EXPIRATION DE 15 MIN) ---
         function generateClientLink() {
             const inputs = document.querySelectorAll('.data-input');
             const contractData = {};
@@ -483,18 +458,10 @@
             const stampElement = document.getElementById('agency-stamp');
             const hasStamp = stampElement.style.display === 'block';
             const stampPos = { top: stampElement.style.top, left: stampElement.style.left };
-            const stampScale = document.getElementById('stamp-size').value;
 
             const expiryTime = Date.now() + (15 * 60 * 1000);
 
-            const payload = { 
-                data: contractData, 
-                stamp: hasStamp, 
-                stampPos: stampPos, 
-                stampScale: stampScale,
-                expiry: expiryTime 
-            };
-            
+            const payload = { data: contractData, stamp: hasStamp, stampPos: stampPos, expiry: expiryTime };
             const encodedData = encodeURIComponent(btoa(JSON.stringify(payload)));
             const baseUrl = window.location.href.split('?')[0];
             const clientUrl = `${baseUrl}?mode=client&data=${encodedData}`;
@@ -506,7 +473,7 @@
             });
         }
 
-        // --- MODE CLIENT (VERIFICATION DE L'EXPIRATION ET DU ZOOM) ---
+        // --- MODE CLIENT (VERIFICATION DE L'EXPIRATION) ---
         function checkUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode'); 
@@ -544,9 +511,6 @@
                                 stampElement.style.top = payload.stampPos.top; 
                                 stampElement.style.left = payload.stampPos.left; 
                             } 
-                            if(payload.stampScale) {
-                                stampElement.style.transform = `rotate(-5deg) scale(${payload.stampScale})`;
-                            }
                         }
                     } catch (e) { console.error("Erreur de chargement.", e); }
                 }
