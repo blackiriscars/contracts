@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=840, maximum-scale=1.0, user-scalable=no">
-    <title>Contrat Black Iris Car</title>
+    <title>Contrat Black Iris Cars</title>
     
     <!-- Bibliothèque pour générer le PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -22,7 +22,7 @@
             overflow-x: hidden;
         }
 
-        /* --- PANNEAUX DE CONTROLE (Ne seront pas dans le PDF) --- */
+        /* --- PANNEAUX DE CONTROLE --- */
         .control-panel {
             background: white;
             padding: 15px 30px;
@@ -56,28 +56,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            width: 800px;
         }
 
         .page {
             width: 800px;
-            max-width: 100%;
-            height: auto; 
+            height: 1131px; 
             background: white;
             padding: 40px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             margin-bottom: 20px;
             position: relative;
             color: #000;
+            overflow: hidden; 
         }
 
+        .pdf-mode .page { box-shadow: none; margin-bottom: 0; border: none; }
+
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 10px; }
-        .logo-text { color: #1e3a8a; font-size: 32px; font-weight: bold; font-style: italic; }
+        .logo-text { color: #1e3a8a; font-size: 32px; font-weight: bold; font-style: italic; text-transform: uppercase; }
         .agency-info { text-align: right; font-size: 14px; font-weight: bold; color: #1e3a8a; }
         .contract-title { text-align: center; font-size: 20px; font-weight: bold; margin: 15px 0; color: #1e3a8a; }
         .contract-title input { font-size: 20px; font-weight: bold; color: red; border: none; border-bottom: 1px dotted #000; width: 100px; text-align: center; min-width: 0; }
         
-        /* CORRECTION DU CADRE : Forcer les colonnes à 50% strict */
         .grid-2 { display: flex; width: 100%; border: 2px solid #1e3a8a; overflow: hidden; }
         .col { width: 50%; max-width: 50%; border-right: 1px solid #1e3a8a; display: flex; flex-direction: column; overflow: hidden; }
         .col:last-child { border-right: none; }
@@ -85,7 +86,7 @@
         .section-header { background-color: #e0e7ff; color: #1e3a8a; font-weight: bold; text-align: center; padding: 5px; border-bottom: 1px solid #1e3a8a; font-size: 14px; width: 100%; }
         
         .field-group { padding: 5px 10px; display: flex; align-items: center; width: 100%; }
-        .field-group label { font-weight: bold; font-size: 11.5px; margin-right: 5px; } 
+        .field-group label { font-weight: bold; font-size: 11.5px; margin-right: 5px; white-space: nowrap;} 
         
         .field-group input { 
             flex: 1; 
@@ -95,18 +96,19 @@
             border-bottom: 1px dotted #000; 
             background: transparent; 
             font-family: Arial, sans-serif; 
-            font-size: 14px; /* Augmenté pour éviter le zoom iPhone */
+            font-size: 14px; 
             padding: 2px; 
             color: #000;
         }
         .field-group input:focus { outline: none; border-bottom: 1px solid #3498db; }
         
-        .grid-inner-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
+        .grid-inner-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; width: 100%; }
+        
         .box-border { border-top: 1px solid #1e3a8a; }
         .car-state-box { border: 1px solid #1e3a8a; margin: 5px 8px; padding: 5px; text-align: center; width: calc(100% - 16px); }
         
         .signatures { display: grid; grid-template-columns: 1fr 1fr; margin-top: 20px; gap: 20px; width: 100%; }
-        .sign-box { border: 2px solid #1e3a8a; height: 120px; padding: 10px; font-weight: bold; font-size: 12px; color: #1e3a8a; background: #f8f9fa; position: relative; }
+        .sign-box { border: 2px solid #1e3a8a; height: 120px; padding: 10px; font-weight: bold; font-size: 12px; color: #1e3a8a; background: #f8f9fa; position: relative; display: flex; flex-direction: column;}
         .footer { text-align: center; font-size: 11px; font-weight: bold; margin-top: 20px; }
 
         .radio-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -120,10 +122,12 @@
         #agency-stamp { top: 20px; left: 20px; display: none; }
         .client-mode .draggable-stamp { border: none; background: transparent; pointer-events: none; }
         
-        #client-signature-area { position: absolute; top: 30px; left: 10px; right: 10px; bottom: 10px; background: rgba(255,255,255,0.9); border: 1px solid red; display: none; }
+        #client-signature-area { position: relative; flex-grow: 1; width: 100%; min-height: 70px; background: rgba(255,255,255,0.9); border: 2px dashed #e74c3c; display: none; margin-top: 5px; }
         .client-mode #client-signature-area { display: block; }
         canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; } 
         #clear-sig { position: absolute; top: -25px; right: 0; background: #e74c3c; color: white; border: none; padding: 2px 5px; font-size: 10px; cursor: pointer; }
+        .pdf-mode #client-signature-area { border: none !important; background: transparent !important; }
+        .pdf-mode #clear-sig { display: none !important; }
 
         /* --- STYLES PAGE 2 --- */
         .page-2-content { display: flex; flex-direction: column; width: 100%; height: 100%; }
@@ -137,10 +141,6 @@
         #custom-doc-container { position: relative; margin-top: 15px; width: 100%; border: 2px dashed #bdc3c7; min-height: 200px; display: flex; justify-content: center; overflow: hidden; background: #f9f9f9; }
         #custom-doc-img { max-width: 100%; height: auto; display: none; pointer-events: none; }
         #custom-stamp { display: none; top: 50%; left: 50%; }
-
-        /* Cache la bordure rouge de la signature lors du téléchargement PDF */
-        .pdf-mode #client-signature-area { border: none !important; background: transparent !important; }
-        .pdf-mode #clear-sig { display: none !important; }
     </style>
 </head>
 <body>
@@ -148,9 +148,15 @@
     <!-- PANNEAU ADMINISTRATEUR -->
     <div id="admin-panel" class="control-panel">
         <h2 style="margin-top: 0; color: #1e3a8a;">Portail Administrateur</h2>
+        
+        <div style="margin-bottom: 15px; background: #f1f2f6; padding: 10px; border-radius: 5px; display: inline-block;">
+            <label style="font-size: 13px; font-weight: bold; margin-right: 10px;">Taille du cachet : </label>
+            <button onclick="resizeStamp(-1)" style="padding: 2px 10px; background: #7f8c8d; font-size: 16px;">-</button>
+            <button onclick="resizeStamp(1)" style="padding: 2px 10px; background: #7f8c8d; font-size: 16px;">+</button>
+        </div><br>
+
         <button onclick="addStamp()">Ajouter le Cachet au contrat</button>
         <button onclick="toggleCustomTool()" style="background-color: #8e44ad;">Tamponner un autre document</button>
-        <button onclick="downloadPDF()" style="background-color: #f39c12;">Télécharger ce contrat en PDF</button>
         <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (15 min)</button>
         <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 15 minutes.</p>
     </div>
@@ -158,14 +164,14 @@
     <!-- PANNEAU CLIENT -->
     <div id="client-panel" class="control-panel">
         <h2 style="margin-top: 0; color: #1e3a8a;">Signature du Contrat</h2>
-        <p style="font-size: 14px;">Veuillez vérifier vos informations, signer en bas de la page, puis télécharger le contrat pour nous l'envoyer.</p>
-        <div style="background: #eef2f5; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: left; font-size: 13px;">
-            <strong>Étapes :</strong><br>
-            1. Signez dans la case rouge en bas de la page 1.<br>
-            2. Cliquez sur le bouton vert ci-dessous pour enregistrer le PDF.<br>
-            3. Envoyez le PDF à l'agence via WhatsApp ou Email.
+        <div style="background: #eef2f5; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: left; font-size: 13px;">
+            <strong>Veuillez suivre ces étapes :</strong><br><br>
+            1. Vérifiez vos informations sur le document ci-dessous.<br>
+            2. Signez avec votre doigt dans la case <strong>en bas de la page 1</strong>.<br>
+            3. Cliquez sur le bouton vert <strong>"Télécharger le contrat signé"</strong>.<br>
+            4. Envoyez le fichier PDF téléchargé à l'agence via WhatsApp ou Email.
         </div>
-        <button onclick="downloadPDF()" style="background-color:#2ecc71; padding: 12px 20px; font-size: 16px;">⬇️ Télécharger en PDF</button>
+        <button onclick="downloadPDF()" style="background-color:#2ecc71; padding: 15px 25px; font-size: 16px; width: 100%;">⬇️ Télécharger le contrat signé (PDF)</button>
     </div>
 
     <!-- OUTIL DE TAMPON POUR DOCUMENTS EXTERNES -->
@@ -193,7 +199,7 @@
         <!-- PAGE 1: CONTRAT -->
         <div class="page" id="page-1">
             <div class="header">
-                <div class="logo-text">BLACK IRIS CAR</div>
+                <div class="logo-text">BLACK IRIS CARS</div>
                 <div class="agency-info">
                     Location de voitures / Rent Car<br>
                     10, Rue Ouarzazat Hassan - Rabat<br>
@@ -259,7 +265,6 @@
 
                     <div class="section-header box-border">FACTURATION</div>
                     
-                    <!-- FACTURATION CORRIGÉE (Sans les colonnes "X") -->
                     <div class="field-group"><label>Jours :</label><input type="text" id="j_qte" class="data-input" placeholder="ex: 3 jours"></div>
                     <div class="field-group"><label>Semaines :</label><input type="text" id="s_qte" class="data-input"></div>
                     <div class="field-group"><label>Mois :</label><input type="text" id="m_qte" class="data-input"></div>
@@ -305,13 +310,15 @@
             </div>
         </div>
 
+        <div class="html2pdf__page-break"></div>
+
         <!-- PAGE 2: CONDITIONS -->
         <div class="page" id="page-2">
             <div class="page-2-content">
                 <h2 style="text-align: center; color: #000; margin-top: 0;">CONDITION GENERALES DE LOCATION</h2>
                 
                 <div class="conditions-intro">
-                    <p>Le présent contrat a été établi et prend date comme indiqué au Verso. Il engage la société de location de voiture BLACK IRIS CAR qui sera appelée le « loueur » et la personne, société ou compagnie par qui est signé ce contrat, qui sera dénommé « le locataire ».</p>
+                    <p>Le présent contrat a été établi et prend date comme indiqué au Verso. Il engage la société de location de voiture BLACK IRIS CARS qui sera appelée le « loueur » et la personne, société ou compagnie par qui est signé ce contrat, qui sera dénommé « le locataire ».</p>
                 </div>
 
                 <div class="conditions-grid">
@@ -366,25 +373,37 @@
                 </div>
             </div>
         </div>
-    </div> <!-- FIN PDF CONTENT -->
+    </div> <!-- FIN DU CONTENU PDF -->
 
     <script>
-        // --- GENERATION DU PDF PARFAIT ---
-        function downloadPDF() {
-            // Ajoute une classe temporaire pour cacher la bordure rouge de signature
-            document.getElementById('pdf-content').classList.add('pdf-mode');
+        // --- LOGIQUE POUR REDIMENSIONNER LE CACHET ---
+        let currentStampScale = 1;
+        function resizeStamp(dir) {
+            currentStampScale += (dir * 0.1);
+            if(currentStampScale < 0.5) currentStampScale = 0.5;
+            if(currentStampScale > 2) currentStampScale = 2;
             
+            const stamps = document.querySelectorAll('.draggable-stamp');
+            stamps.forEach(stamp => {
+                stamp.style.fontSize = (14 * currentStampScale) + 'px';
+                stamp.style.padding = (10 * currentStampScale) + 'px';
+            });
+        }
+
+        // --- GENERATION DU PDF (TÉLÉCHARGEMENT) ---
+        function downloadPDF() {
+            document.getElementById('pdf-content').classList.add('pdf-mode');
             const element = document.getElementById('pdf-content');
             const clientName = document.getElementById('nom').value || "Client";
+            
             const opt = {
                 margin:       0,
-                filename:     `Contrat_Black_Iris_Car_${clientName}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                filename:     `Contrat_Black_Iris_Cars_${clientName}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                jsPDF:        { unit: 'px', format: [800, 1131], orientation: 'portrait' }
             };
 
-            // Genere le PDF puis retire la classe
             html2pdf().set(opt).from(element).save().then(() => {
                 document.getElementById('pdf-content').classList.remove('pdf-mode');
             });
@@ -472,7 +491,7 @@
             ctx.save();
             ctx.translate(x + (stamp.offsetWidth / 2) * scaleX, y + (stamp.offsetHeight / 2) * scaleY);
             ctx.rotate(-5 * Math.PI / 180);
-            ctx.font = "bold " + (14 * scaleX) + "px 'Courier New'";
+            ctx.font = "bold " + (14 * scaleX * currentStampScale) + "px 'Courier New'";
             ctx.fillStyle = "rgba(30, 58, 138, 0.8)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -485,7 +504,7 @@
                 "06 02 02 04 02"
             ];
             
-            let lineHeight = 16 * scaleY;
+            let lineHeight = 16 * scaleY * currentStampScale;
             let startY = 0 - (lines.length / 2) * lineHeight;
 
             lines.forEach((line, i) => {
@@ -499,7 +518,7 @@
             link.click();
         }
 
-        // --- GENERATION DU LIEN CLIENT (AVEC EXPIRATION DE 15 MIN) ---
+        // --- GENERATION DU LIEN CLIENT ---
         function generateClientLink() {
             const inputs = document.querySelectorAll('.data-input');
             const contractData = {};
@@ -518,7 +537,7 @@
 
             const expiryTime = Date.now() + (15 * 60 * 1000);
 
-            const payload = { data: contractData, stamp: hasStamp, stampPos: stampPos, expiry: expiryTime };
+            const payload = { data: contractData, stamp: hasStamp, stampPos: stampPos, expiry: expiryTime, stampScale: currentStampScale };
             const encodedData = encodeURIComponent(btoa(JSON.stringify(payload)));
             const baseUrl = window.location.href.split('?')[0];
             const clientUrl = `${baseUrl}?mode=client&data=${encodedData}`;
@@ -530,7 +549,7 @@
             });
         }
 
-        // --- MODE CLIENT (VERIFICATION DE L'EXPIRATION) ---
+        // --- MODE CLIENT ---
         function checkUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode'); 
@@ -547,7 +566,6 @@
                             return; 
                         }
 
-                        // Affiche le panneau client, cache le panneau admin
                         document.body.classList.add('client-mode');
                         document.getElementById('admin-panel').style.display = 'none';
                         document.getElementById('client-panel').style.display = 'block';
@@ -569,7 +587,11 @@
                             if(payload.stampPos.top) { 
                                 stampElement.style.top = payload.stampPos.top; 
                                 stampElement.style.left = payload.stampPos.left; 
-                            } 
+                            }
+                            if(payload.stampScale) {
+                                currentStampScale = payload.stampScale;
+                                resizeStamp(0);
+                            }
                         }
                     } catch (e) { console.error("Erreur de chargement.", e); }
                 }
