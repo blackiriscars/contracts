@@ -69,7 +69,6 @@
             overflow: hidden; 
         }
 
-        /* Mode PDF : Plus d'ombres, marges à 0 pour éviter les pages blanches */
         .pdf-mode { padding: 0; margin: 0; }
         .pdf-mode .page { box-shadow: none; margin-bottom: 0; border: none; }
 
@@ -119,7 +118,7 @@
         #agency-stamp { top: 20px; left: 20px; display: none; }
         .client-mode .draggable-stamp { border: none; background: transparent; pointer-events: none; }
         
-        /* --- NOUVELLE ZONE DE SIGNATURE --- */
+        /* ZONE DE SIGNATURE CLIENT (PAGE 1 UNIQUEMENT) */
         #client-signature-area { position: relative; flex-grow: 1; width: 100%; min-height: 75px; background: rgba(255,255,255,0.9); border: 2px dashed #e74c3c; display: none; margin-top: 5px; cursor: pointer; justify-content: center; align-items: center; }
         .client-mode #client-signature-area { display: flex; }
         #sig-placeholder { color: #e74c3c; font-size: 11px; font-weight: bold; text-align: center; }
@@ -168,7 +167,6 @@
 
         <button onclick="addStamp()">Ajouter le Cachet au contrat</button>
         <button onclick="toggleCustomTool()" style="background-color: #8e44ad;">Tamponner un autre document</button>
-        <button onclick="downloadExcel()" style="background-color: #27ae60;">Exporter les données en Excel</button>
         <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (5 min)</button>
         <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 5 minutes.</p>
     </div>
@@ -417,25 +415,6 @@
             html2pdf().set(opt).from(element).save().then(() => {
                 document.getElementById('pdf-content').classList.remove('pdf-mode');
             });
-        }
-
-        // --- EXPORTATION EXCEL POUR L'ADMINISTRATEUR ---
-        function downloadExcel() {
-            let tableHTML = "<table border='1'><tr><th style='background-color:#1e3a8a; color:white;'>Champ</th><th style='background-color:#1e3a8a; color:white;'>Valeur</th></tr>";
-            const inputs = document.querySelectorAll('.data-input');
-            
-            inputs.forEach(input => {
-                let val = input.type === 'radio' || input.type === 'checkbox' ? (input.checked ? 'Oui' : 'Non') : input.value;
-                if(input.type === 'radio' && !input.checked) return; 
-                tableHTML += `<tr><td>${input.id}</td><td>${val}</td></tr>`;
-            });
-            tableHTML += "</table>";
-            
-            const uri = 'data:application/vnd.ms-excel;base64,' + btoa(unescape(encodeURIComponent(tableHTML)));
-            const link = document.createElement("a");
-            link.href = uri;
-            link.download = "Donnees_Contrat_BlackIrisCars.xls";
-            link.click();
         }
 
         // --- GESTION DES CACHETS DEPLAÇABLES ---
