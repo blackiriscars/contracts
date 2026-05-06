@@ -118,7 +118,7 @@
         #agency-stamp { top: 20px; left: 20px; display: none; }
         .client-mode .draggable-stamp { border: none; background: transparent; pointer-events: none; }
         
-        /* ZONE DE SIGNATURE CLIENT (PAGE 1 UNIQUEMENT) */
+        /* --- ZONE DE SIGNATURE CLIENT --- */
         #client-signature-area { position: relative; flex-grow: 1; width: 100%; min-height: 75px; background: rgba(255,255,255,0.9); border: 2px dashed #e74c3c; display: none; margin-top: 5px; cursor: pointer; justify-content: center; align-items: center; }
         .client-mode #client-signature-area { display: flex; }
         #sig-placeholder { color: #e74c3c; font-size: 11px; font-weight: bold; text-align: center; }
@@ -137,6 +137,9 @@
         #custom-doc-container { position: relative; margin-top: 15px; width: 100%; border: 2px dashed #bdc3c7; min-height: 200px; display: flex; justify-content: center; overflow: hidden; background: #f9f9f9; }
         #custom-doc-img { max-width: 100%; height: auto; display: none; pointer-events: none; }
         #custom-stamp { display: none; top: 50%; left: 50%; }
+
+        /* Zone de lien raccourci */
+        #link-result-container { display: none; margin-top: 15px; background: #f1f2f6; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -168,7 +171,15 @@
         <button onclick="addStamp()">Ajouter le Cachet au contrat</button>
         <button onclick="toggleCustomTool()" style="background-color: #8e44ad;">Tamponner un autre document</button>
         <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (5 min)</button>
-        <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 5 minutes.</p>
+        
+        <p id="link-status" style="color: #e67e22; font-weight: bold; display: none;">Génération du lien en cours...</p>
+        
+        <!-- Boîte affichant le lien court à copier -->
+        <div id="link-result-container">
+            <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Lien à envoyer au client :</p>
+            <input type="text" id="short-link-result" readonly style="width: 250px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="copyShortLink()" style="background:#34495e;">Copier</button>
+        </div>
     </div>
 
     <!-- PANNEAU CLIENT -->
@@ -398,7 +409,7 @@
             });
         }
 
-        // --- GENERATION DU PDF (TÉLÉCHARGEMENT SANS BUG DE ZOOM) ---
+        // --- GENERATION DU PDF ---
         function downloadPDF() {
             document.getElementById('pdf-content').classList.add('pdf-mode');
             const element = document.getElementById('pdf-content');
@@ -526,7 +537,7 @@
             link.click();
         }
 
-        // --- GENERATION DU LIEN CLIENT (5 MIN) ---
+        // --- RACCOURCISSEUR D'URL + GENERATION DU LIEN CLIENT ---
         function generateClientLink() {
             const inputs = document.querySelectorAll('.data-input');
             const contractData = {};
@@ -550,11 +561,29 @@
             const baseUrl = window.location.href.split('?')[0];
             const clientUrl = `${baseUrl}?mode=client&data=${encodedData}`;
 
-            navigator.clipboard.writeText(clientUrl).then(() => {
-                const status = document.getElementById('link-status'); 
-                status.style.display = 'block'; 
-                setTimeout(() => { status.style.display = 'none'; }, 5000);
-            });
+            document.getElementById('link-status').style.display = 'block';
+
+            // API de raccourcissement is.gd
+            const script = document.createElement('script');
+            window.shortenCallback = function(data) {
+                let finalUrl = data.shorturl ? data.shorturl : clientUrl; 
+                
+                document.getElementById('short-link-result').value = finalUrl;
+                document.getElementById('link-result-container').style.display = 'block';
+                document.getElementById('link-status').style.display = 'none';
+                
+                delete window.shortenCallback;
+                document.body.removeChild(script);
+            };
+            script.src = `https://is.gd/create.php?format=json&url=${encodeURIComponent(clientUrl)}&callback=shortenCallback`;
+            document.body.appendChild(script);
+        }
+
+        function copyShortLink() {
+            const linkInput = document.getElementById('short-link-result');
+            linkInput.select();
+            document.execCommand("copy");
+            alert("Lien copié ! Vous pouvez l'envoyer au client.");
         }
 
         // --- MODE CLIENT ---
