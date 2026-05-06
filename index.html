@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=840, maximum-scale=1.0, user-scalable=no">
     <title>Contrat Black Iris Cars</title>
     
-    <!-- Bibliothèque pour générer le PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -22,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* --- PANNEAUX DE CONTROLE --- */
         .control-panel {
             background: white;
             padding: 15px 30px;
@@ -56,14 +54,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 210mm; /* Largeur A4 exacte */
+            width: 210mm;
         }
 
         .page {
             width: 210mm;
-            height: 297mm; /* Hauteur A4 exacte pour éviter les débordements */
+            height: 297mm; 
             background: white;
-            padding: 10mm 15mm; /* Marges réduites pour tout faire rentrer */
+            padding: 10mm 15mm; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             margin-bottom: 20px;
             position: relative;
@@ -71,7 +69,7 @@
             overflow: hidden; 
         }
 
-        /* En mode PDF, on enlève les ombres pour un rendu propre */
+        /* Mode PDF : Plus d'ombres, marges à 0 pour éviter les pages blanches */
         .pdf-mode { padding: 0; margin: 0; }
         .pdf-mode .page { box-shadow: none; margin-bottom: 0; border: none; }
 
@@ -104,6 +102,7 @@
         }
         .field-group input:focus { outline: none; border-bottom: 1px solid #3498db; }
         
+        .grid-inner-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; width: 100%; }
         .box-border { border-top: 1px solid #1e3a8a; }
         .car-state-box { border: 1px solid #1e3a8a; margin: 5px; padding: 5px; text-align: center; width: calc(100% - 10px); }
         
@@ -114,23 +113,19 @@
         .radio-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .radio-group label { margin-right: 0; font-size: 11px; }
 
-        /* CLIENT MODE CLASSES */
         .client-mode input { border-bottom: none !important; pointer-events: none; color: #000; }
 
-        /* STAMP & CANVAS */
         .draggable-stamp { position: absolute; border: 2px dashed rgba(0,0,0,0.3); padding: 10px; cursor: move; color: #1e3a8a; font-weight: bold; font-family: 'Courier New', Courier, monospace; text-align: center; font-size: 14px; transform: rotate(-5deg); z-index: 10; background: rgba(255,255,255,0.4); }
         #agency-stamp { top: 20px; left: 20px; display: none; }
         .client-mode .draggable-stamp { border: none; background: transparent; pointer-events: none; }
         
-        /* Zone de signature client sur la Page 1 */
-        #client-signature-area { position: relative; flex-grow: 1; width: 100%; height: 75px; background: rgba(255,255,255,0.9); border: 2px dashed #e74c3c; display: none; margin-top: 5px; }
-        .client-mode #client-signature-area { display: block; }
-        canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; } 
-        #clear-sig { position: absolute; top: -25px; right: 0; background: #e74c3c; color: white; border: none; padding: 2px 5px; font-size: 10px; cursor: pointer; }
+        /* --- NOUVELLE ZONE DE SIGNATURE --- */
+        #client-signature-area { position: relative; flex-grow: 1; width: 100%; min-height: 75px; background: rgba(255,255,255,0.9); border: 2px dashed #e74c3c; display: none; margin-top: 5px; cursor: pointer; justify-content: center; align-items: center; }
+        .client-mode #client-signature-area { display: flex; }
+        #sig-placeholder { color: #e74c3c; font-size: 11px; font-weight: bold; text-align: center; }
         
-        /* Cache les éléments interactifs lors du PDF */
         .pdf-mode #client-signature-area { border: none !important; background: transparent !important; }
-        .pdf-mode #clear-sig { display: none !important; }
+        .pdf-mode #sig-placeholder { display: none !important; }
 
         /* --- STYLES PAGE 2 --- */
         .page-2-content { display: flex; flex-direction: column; width: 100%; height: 100%; }
@@ -139,7 +134,6 @@
         .conditions-col p { font-size: 9.5px; text-align: justify; line-height: 1.25; margin-top: 0; margin-bottom: 6px; }
         .conditions-col h3 { font-size: 10px; font-weight: bold; color: #000; margin: 10px 0 4px 0; text-transform: uppercase; }
 
-        /* --- OUTIL TAMPON PERSONNALISÉ --- */
         #custom-tool-panel { background: white; padding: 20px; border-radius: 8px; width: 210mm; max-width: 100%; display: none; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         #custom-doc-container { position: relative; margin-top: 15px; width: 100%; border: 2px dashed #bdc3c7; min-height: 200px; display: flex; justify-content: center; overflow: hidden; background: #f9f9f9; }
         #custom-doc-img { max-width: 100%; height: auto; display: none; pointer-events: none; }
@@ -148,11 +142,24 @@
 </head>
 <body>
 
+    <!-- FENETRE POPUP POUR SIGNATURE FACILE -->
+    <div id="signature-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; text-align:center;">
+            <h3 style="color:#1e3a8a; margin-top:0;">Dessinez votre signature</h3>
+            <p style="font-size:12px; color:#7f8c8d;">Utilisez votre doigt pour signer dans le cadre ci-dessous.</p>
+            <canvas id="modal-signature-pad" style="border:2px dashed #1e3a8a; width:100%; height:200px; touch-action:none; background:#f8f9fa;"></canvas>
+            <div style="margin-top:15px; display:flex; justify-content:space-between;">
+                <button onclick="clearSignature()" style="background:#e74c3c; padding:10px 15px;">Effacer</button>
+                <button onclick="closeSignatureModal()" style="background:#95a5a6; padding:10px 15px;">Annuler</button>
+                <button onclick="saveSignature()" style="background:#2ecc71; padding:10px 15px;">Valider</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PANNEAU ADMINISTRATEUR -->
     <div id="admin-panel" class="control-panel">
         <h2 style="margin-top: 0; color: #1e3a8a;">Portail Administrateur</h2>
         
-        <!-- Contrôle de la taille du cachet -->
         <div style="margin-bottom: 15px; background: #f1f2f6; padding: 10px; border-radius: 5px; display: inline-block;">
             <label style="font-size: 13px; font-weight: bold; margin-right: 10px;">Taille du cachet : </label>
             <button onclick="resizeStamp(-1)" style="padding: 2px 10px; background: #7f8c8d; font-size: 16px;">-</button>
@@ -161,8 +168,9 @@
 
         <button onclick="addStamp()">Ajouter le Cachet au contrat</button>
         <button onclick="toggleCustomTool()" style="background-color: #8e44ad;">Tamponner un autre document</button>
-        <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (15 min)</button>
-        <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 15 minutes.</p>
+        <button onclick="downloadExcel()" style="background-color: #27ae60;">Exporter les données en Excel</button>
+        <button onclick="generateClientLink()" style="background-color: #2ecc71;">Générer le lien Client (5 min)</button>
+        <p id="link-status" style="color: #2ecc71; font-weight: bold; display: none;">Lien copié ! Il expirera dans 5 minutes.</p>
     </div>
 
     <!-- PANNEAU CLIENT -->
@@ -171,7 +179,7 @@
         <div style="background: #eef2f5; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: left; font-size: 13px;">
             <strong>Veuillez suivre ces étapes :</strong><br><br>
             1. Vérifiez vos informations sur le document ci-dessous.<br>
-            2. Signez avec votre doigt dans la case <strong>en bas de la page 1</strong>.<br>
+            2. Appuyez sur la case rouge <strong>en bas de la page 1</strong> pour signer numériquement.<br>
             3. Cliquez sur le bouton vert <strong>"Télécharger le contrat signé"</strong>.<br>
             4. Envoyez le fichier PDF téléchargé à l'agence via WhatsApp ou Email.
         </div>
@@ -235,7 +243,7 @@
                     <div class="field-group"><label>PERMIS DE CONDUIRE :</label><input type="text" id="permis_2" class="data-input"></div>
                     <div class="field-group"><label>DELIVRE LE :</label><input type="text" id="permis_date_2" class="data-input"></div>
 
-                    <div class="box-border" style="padding-top: 5px;"></div>
+                    <div class="box-border" style="padding-top: 10px;"></div>
                     <div class="field-group"><label>Date et heure de départ :</label><input type="text" id="date_dep" class="data-input"></div>
                     <div class="field-group"><label>Date et heure de retour :</label><input type="text" id="date_ret" class="data-input"></div>
                     <div class="field-group"><label>Date de prolongement :</label><input type="text" id="date_prol" class="data-input"></div>
@@ -258,13 +266,10 @@
 
                     <div class="car-state-box">
                         <div class="section-header" style="background: none; border-bottom: none; font-size: 12px;">ETAT DU VEHICULE A LA LIVRAISON</div>
-                        
-                        <!-- CORRECTION : KM Séparés pour empêcher le débordement -->
-                        <div style="display: flex; justify-content: space-between; width: 100%; padding: 2px;">
-                            <div class="field-group" style="width: 48%; padding: 0;"><label>Km Départ :</label><input type="text" id="km_dep" class="data-input"></div>
-                            <div class="field-group" style="width: 48%; padding: 0;"><label>Km Retour :</label><input type="text" id="km_ret" class="data-input"></div>
+                        <div class="grid-inner-2">
+                            <div class="field-group" style="padding: 2px;"><label>Km Départ :</label><input type="text" id="km_dep" class="data-input"></div>
+                            <div class="field-group" style="padding: 2px;"><label>Km Retour :</label><input type="text" id="km_ret" class="data-input"></div>
                         </div>
-
                         <div class="field-group"><label>Observation avant départ :</label><input type="text" id="obs_dep" class="data-input"></div>
                         <div class="field-group"><label>Déclaration au retour :</label><input type="text" id="obs_ret" class="data-input"></div>
                         <div class="field-group"><label>Franchise Assurance :</label><input type="text" id="franchise" class="data-input"></div>
@@ -287,16 +292,16 @@
                 </div>
             </div>
 
-            <div class="field-group" style="margin-top: 5px; justify-content: flex-end;">
+            <div class="field-group" style="margin-top: 10px; justify-content: flex-end;">
                 <label>Rabat le :</label><input type="text" id="rabat_le" class="data-input" style="max-width: 200px;">
             </div>
 
             <div class="signatures">
                 <div class="sign-box">
                     SIGNATURE DU CLIENT LU ET APPROUVÉ
-                    <div id="client-signature-area">
-                        <button id="clear-sig" onclick="clearSignature()">X Effacer</button>
-                        <canvas id="signature-pad"></canvas>
+                    <div id="client-signature-area" onclick="openSignatureModal()">
+                        <span id="sig-placeholder">Appuyez ici pour signer</span>
+                        <img id="final-signature-img" src="" alt="" style="display:none; max-width:100%; max-height:100%; object-fit:contain;">
                     </div>
                 </div>
                 <div class="sign-box" id="agency-sign-box">
@@ -316,8 +321,6 @@
                 Patente : 25114974 - RC : 191883/Rabat - IF : 68728591 - ICE : 003819851000049
             </div>
         </div>
-
-        <div class="html2pdf__page-break"></div>
 
         <!-- PAGE 2: CONDITIONS -->
         <div class="page" id="page-2">
@@ -403,7 +406,6 @@
             const element = document.getElementById('pdf-content');
             const clientName = document.getElementById('nom').value || "Client";
             
-            // Configuration stricte pour le format A4 (empêche le zoom/décalage sur PC)
             const opt = {
                 margin:       0,
                 filename:     `Contrat_Black_Iris_Cars_${clientName}.pdf`,
@@ -415,6 +417,25 @@
             html2pdf().set(opt).from(element).save().then(() => {
                 document.getElementById('pdf-content').classList.remove('pdf-mode');
             });
+        }
+
+        // --- EXPORTATION EXCEL POUR L'ADMINISTRATEUR ---
+        function downloadExcel() {
+            let tableHTML = "<table border='1'><tr><th style='background-color:#1e3a8a; color:white;'>Champ</th><th style='background-color:#1e3a8a; color:white;'>Valeur</th></tr>";
+            const inputs = document.querySelectorAll('.data-input');
+            
+            inputs.forEach(input => {
+                let val = input.type === 'radio' || input.type === 'checkbox' ? (input.checked ? 'Oui' : 'Non') : input.value;
+                if(input.type === 'radio' && !input.checked) return; 
+                tableHTML += `<tr><td>${input.id}</td><td>${val}</td></tr>`;
+            });
+            tableHTML += "</table>";
+            
+            const uri = 'data:application/vnd.ms-excel;base64,' + btoa(unescape(encodeURIComponent(tableHTML)));
+            const link = document.createElement("a");
+            link.href = uri;
+            link.download = "Donnees_Contrat_BlackIrisCars.xls";
+            link.click();
         }
 
         // --- GESTION DES CACHETS DEPLAÇABLES ---
@@ -526,7 +547,7 @@
             link.click();
         }
 
-        // --- GENERATION DU LIEN CLIENT ---
+        // --- GENERATION DU LIEN CLIENT (5 MIN) ---
         function generateClientLink() {
             const inputs = document.querySelectorAll('.data-input');
             const contractData = {};
@@ -543,7 +564,7 @@
             const hasStamp = stampElement.style.display === 'block';
             const stampPos = { top: stampElement.style.top, left: stampElement.style.left };
 
-            const expiryTime = Date.now() + (15 * 60 * 1000);
+            const expiryTime = Date.now() + (5 * 60 * 1000);
 
             const payload = { data: contractData, stamp: hasStamp, stampPos: stampPos, expiry: expiryTime, stampScale: currentStampScale };
             const encodedData = encodeURIComponent(btoa(JSON.stringify(payload)));
@@ -570,7 +591,7 @@
                         const payload = JSON.parse(decodedStr);
 
                         if (payload.expiry && Date.now() > payload.expiry) {
-                            document.body.innerHTML = "<div style='text-align:center; padding: 50px; background: white; border-radius:10px; width:500px; max-width: 90%; margin: 50px auto; color: red; font-family: Arial, sans-serif;'><h2>Ce lien a expiré.</h2><p>Le lien était valide uniquement pendant 15 minutes pour des raisons de sécurité. Veuillez demander un nouveau lien à l'agence.</p></div>";
+                            document.body.innerHTML = "<div style='text-align:center; padding: 50px; background: white; border-radius:10px; width:500px; max-width: 90%; margin: 50px auto; color: red; font-family: Arial, sans-serif;'><h2>Ce lien a expiré.</h2><p>Le lien était valide uniquement pendant 5 minutes pour des raisons de sécurité. Veuillez demander un nouveau lien à l'agence.</p></div>";
                             return; 
                         }
 
@@ -603,57 +624,72 @@
                         }
                     } catch (e) { console.error("Erreur de chargement.", e); }
                 }
-                initSignaturePad();
             }
         }
 
-        // --- SIGNATURE PAD LOGIC ---
-        const canvas = document.getElementById('signature-pad'); 
-        const ctx = canvas.getContext('2d'); 
-        let isDrawing = false;
+        // --- NOUVELLE LOGIQUE DE SIGNATURE (POPUP) ---
+        const modalCanvas = document.getElementById('modal-signature-pad'); 
+        const modalCtx = modalCanvas.getContext('2d'); 
+        let isModalDrawing = false;
 
-        function initSignaturePad() {
-            if(!canvas) return;
-            canvas.width = canvas.parentElement.clientWidth; 
-            canvas.height = canvas.parentElement.clientHeight; 
-            ctx.strokeStyle = '#1e3a8a'; 
-            ctx.lineWidth = 2; 
-            ctx.lineCap = 'round';
+        function initSignatureModal() {
+            modalCanvas.width = modalCanvas.parentElement.clientWidth; 
+            modalCanvas.height = 200; 
+            modalCtx.strokeStyle = '#1e3a8a'; 
+            modalCtx.lineWidth = 3; 
+            modalCtx.lineCap = 'round';
 
-            canvas.addEventListener('mousedown', startDrawing); 
-            canvas.addEventListener('mousemove', draw); 
-            canvas.addEventListener('mouseup', stopDrawing); 
-            canvas.addEventListener('mouseout', stopDrawing);
-            canvas.addEventListener('touchstart', handleTouchStart, { passive: false }); 
-            canvas.addEventListener('touchmove', handleTouchMove, { passive: false }); 
-            canvas.addEventListener('touchend', stopDrawing);
+            modalCanvas.addEventListener('mousedown', startModalDrawing); 
+            modalCanvas.addEventListener('mousemove', drawModal); 
+            modalCanvas.addEventListener('mouseup', stopModalDrawing); 
+            modalCanvas.addEventListener('mouseout', stopModalDrawing);
+            modalCanvas.addEventListener('touchstart', handleModalTouchStart, { passive: false }); 
+            modalCanvas.addEventListener('touchmove', handleModalTouchMove, { passive: false }); 
+            modalCanvas.addEventListener('touchend', stopModalDrawing);
         }
 
-        function getCoordinates(e) { 
-            const rect = canvas.getBoundingClientRect(); 
+        function getModalCoordinates(e) { 
+            const rect = modalCanvas.getBoundingClientRect(); 
             if (e.touches && e.touches.length > 0) { 
                 return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top }; 
             } 
             return { x: e.clientX - rect.left, y: e.clientY - rect.top }; 
         }
 
-        function startDrawing(e) { 
-            isDrawing = true; 
-            const coords = getCoordinates(e); 
-            ctx.beginPath(); 
-            ctx.moveTo(coords.x, coords.y); 
+        function startModalDrawing(e) { 
+            isModalDrawing = true; 
+            const coords = getModalCoordinates(e); 
+            modalCtx.beginPath(); 
+            modalCtx.moveTo(coords.x, coords.y); 
         }
 
-        function handleTouchStart(e) { e.preventDefault(); startDrawing(e); }
-        function draw(e) { 
-            if (!isDrawing) return; 
-            const coords = getCoordinates(e); 
-            ctx.lineTo(coords.x, coords.y); 
-            ctx.stroke(); 
+        function handleModalTouchStart(e) { e.preventDefault(); startModalDrawing(e); }
+        function drawModal(e) { 
+            if (!isModalDrawing) return; 
+            const coords = getModalCoordinates(e); 
+            modalCtx.lineTo(coords.x, coords.y); 
+            modalCtx.stroke(); 
         }
-        function handleTouchMove(e) { e.preventDefault(); draw(e); }
-        function stopDrawing() { isDrawing = false; }
-        function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function handleModalTouchMove(e) { e.preventDefault(); drawModal(e); }
+        function stopModalDrawing() { isModalDrawing = false; }
+
+        function clearSignature() { modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height); }
+
+        function openSignatureModal() {
+            if (!document.body.classList.contains('client-mode')) return;
+            document.getElementById('signature-modal').style.display = 'flex';
+            initSignatureModal();
+        }
+
+        function closeSignatureModal() { document.getElementById('signature-modal').style.display = 'none'; }
+
+        function saveSignature() {
+            const dataUrl = modalCanvas.toDataURL('image/png');
+            document.getElementById('final-signature-img').src = dataUrl;
+            document.getElementById('final-signature-img').style.display = 'block';
+            document.getElementById('sig-placeholder').style.display = 'none';
+            closeSignatureModal();
+        }
         
         window.onload = checkUrlMode;
     </script>
