@@ -56,7 +56,7 @@
             flex-direction: column;
             align-items: center;
             width: 210mm;
-            display: none; /* Caché jusqu'à vérification */
+            display: none; /* Caché jusqu'à vérification du mot de passe */
         }
 
         .page {
@@ -89,7 +89,8 @@
         .field-group { padding: 4px 8px; display: flex; align-items: center; width: 100%; }
         .field-group label { font-weight: bold; font-size: 11px; margin-right: 5px; white-space: nowrap;} 
         
-        .field-group input { 
+        /* CORRECTION MULTI-LIGNES : Ajout de textarea */
+        .field-group input, .field-group textarea { 
             flex: 1; 
             min-width: 0; 
             max-width: 100%; 
@@ -101,7 +102,17 @@
             padding: 1px; 
             color: #000;
         }
-        .field-group input:focus { outline: none; border-bottom: 1px solid #3498db; }
+        
+        /* Fixe la taille de la zone multi-lignes à 2 lignes maximum */
+        .field-group textarea {
+            resize: none;
+            overflow: hidden;
+            height: 30px; 
+            line-height: 14px;
+            word-wrap: break-word;
+        }
+
+        .field-group input:focus, .field-group textarea:focus { outline: none; border-bottom: 1px solid #3498db; }
         
         .grid-inner-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5px; width: 100%; }
         .box-border { border-top: 1px solid #1e3a8a; }
@@ -114,7 +125,8 @@
         .radio-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .radio-group label { margin-right: 0; font-size: 11px; }
 
-        .client-mode input { border-bottom: none !important; pointer-events: none; color: #000; }
+        /* CLIENT MODE CLASSES - Bloque la saisie */
+        .client-mode input, .client-mode textarea { border-bottom: none !important; pointer-events: none; color: #000; }
 
         .draggable-stamp { position: absolute; border: 2px dashed rgba(0,0,0,0.3); padding: 10px; cursor: move; color: #1e3a8a; font-weight: bold; font-family: 'Courier New', Courier, monospace; text-align: center; font-size: 14px; transform: rotate(-5deg); z-index: 10; background: rgba(255,255,255,0.4); }
         #agency-stamp { top: 20px; left: 20px; display: none; }
@@ -231,18 +243,18 @@
             <div class="grid-2">
                 <div class="col">
                     <div class="section-header">LE LOCATAIRE</div>
-                    <div class="field-group"><label>NOM :</label><input type="text" id="nom" class="data-input"></div>
-                    <div class="field-group"><label>PRENOM :</label><input type="text" id="prenom" class="data-input"></div>
+                    <div class="field-group"><label>NOM :</label><textarea id="nom" class="data-input"></textarea></div>
+                    <div class="field-group"><label>PRENOM :</label><textarea id="prenom" class="data-input"></textarea></div>
                     <div class="field-group"><label>DATE DE NAISSANCE :</label><input type="text" id="date_naiss" class="data-input"></div>
                     <div class="field-group"><label>TELEPHONE :</label><input type="text" id="tel" class="data-input"></div>
-                    <div class="field-group"><label>ADRESSE AU MAROC :</label><input type="text" id="adresse" class="data-input"></div>
+                    <div class="field-group"><label>ADRESSE AU MAROC :</label><textarea id="adresse" class="data-input"></textarea></div>
                     <div class="field-group"><label>PASSEPORT / C.I.N.N° :</label><input type="text" id="cin" class="data-input"></div>
                     <div class="field-group"><label>DELIVRE LE :</label><input type="text" id="cin_date" class="data-input"></div>
                     <div class="field-group"><label>PERMIS DE CONDUIRE N° :</label><input type="text" id="permis" class="data-input"></div>
                     <div class="field-group"><label>DELIVRE LE :</label><input type="text" id="permis_date" class="data-input"></div>
 
                     <div class="section-header box-border">Le 2ème Conducteur déclaré</div>
-                    <div class="field-group"><label>NOM - PRÉNOM :</label><input type="text" id="nom_2" class="data-input"></div>
+                    <div class="field-group"><label>NOM - PRÉNOM :</label><textarea id="nom_2" class="data-input"></textarea></div>
                     <div class="field-group"><label>PERMIS DE CONDUIRE :</label><input type="text" id="permis_2" class="data-input"></div>
                     <div class="field-group"><label>DELIVRE LE :</label><input type="text" id="permis_date_2" class="data-input"></div>
 
@@ -256,7 +268,7 @@
 
                 <div class="col">
                     <div class="section-header">LE VÉHICULE EN LOCATION</div>
-                    <div class="field-group"><label>MARQUE / Modél :</label><input type="text" id="marque" class="data-input"></div>
+                    <div class="field-group"><label>MARQUE / Modél :</label><textarea id="marque" class="data-input"></textarea></div>
                     <div class="field-group"><label>IMMATRICULATION :</label><input type="text" id="immatriculation" class="data-input"></div>
                     <div class="field-group">
                         <label>CARBURANT :</label> 
@@ -272,8 +284,8 @@
                             <div class="field-group" style="padding: 2px;"><label>Km Départ :</label><input type="text" id="km_dep" class="data-input"></div>
                             <div class="field-group" style="padding: 2px;"><label>Km Retour :</label><input type="text" id="km_ret" class="data-input"></div>
                         </div>
-                        <div class="field-group"><label>Observation avant départ :</label><input type="text" id="obs_dep" class="data-input"></div>
-                        <div class="field-group"><label>Déclaration au retour :</label><input type="text" id="obs_ret" class="data-input"></div>
+                        <div class="field-group"><label>Observation avant départ :</label><textarea id="obs_dep" class="data-input"></textarea></div>
+                        <div class="field-group"><label>Déclaration au retour :</label><textarea id="obs_ret" class="data-input"></textarea></div>
                         <div class="field-group"><label>Franchise Assurance :</label><input type="text" id="franchise" class="data-input"></div>
                     </div>
 
@@ -289,8 +301,8 @@
                     <div class="field-group"><label>Acompte :</label><input type="text" id="acompte" class="data-input"></div>
                     <div class="field-group" style="background:#e0e7ff;"><label>Reste à payer :</label><input type="text" id="reste" class="data-input"></div>
                     <div class="field-group"><label>Prolongation (+):</label><input type="text" id="prolong" class="data-input"></div>
-                    <div class="field-group"><label>Autres (+):</label><input type="text" id="autres" class="data-input"></div>
-                    <div class="field-group"><label>Mode de paiement :</label><input type="text" id="mode_paiement" class="data-input"></div>
+                    <div class="field-group"><label>Autres (+):</label><textarea id="autres" class="data-input"></textarea></div>
+                    <div class="field-group"><label>Mode de paiement :</label><textarea id="mode_paiement" class="data-input"></textarea></div>
                 </div>
             </div>
 
@@ -624,7 +636,7 @@
             } 
             // 2. SI C'EST L'ADMINISTRATEUR (Le lien de base de votre site)
             else {
-                // MODIFIEZ LE MOT DE PASSE ICI SI BESOIN
+                // MOT DE PASSE : Iris2026
                 let password = prompt("Veuillez entrer le mot de passe Administrateur :");
                 
                 if (password === "Iris2026") {
