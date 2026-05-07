@@ -32,7 +32,8 @@
             max-width: 100%;
         }
 
-        #admin-panel { display: block; }
+        /* L'admin panel est caché par défaut jusqu'au mot de passe */
+        #admin-panel { display: none; }
         #client-panel { display: none; }
 
         button {
@@ -55,6 +56,7 @@
             flex-direction: column;
             align-items: center;
             width: 210mm;
+            display: none; /* Caché jusqu'à vérification */
         }
 
         .page {
@@ -144,7 +146,6 @@
 </head>
 <body>
 
-    <!-- FENETRE POPUP POUR SIGNATURE FACILE -->
     <div id="signature-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
         <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; text-align:center;">
             <h3 style="color:#1e3a8a; margin-top:0;">Dessinez votre signature</h3>
@@ -158,7 +159,6 @@
         </div>
     </div>
 
-    <!-- PANNEAU ADMINISTRATEUR -->
     <div id="admin-panel" class="control-panel">
         <h2 style="margin-top: 0; color: #1e3a8a;">Portail Administrateur</h2>
         
@@ -174,7 +174,6 @@
         
         <p id="link-status" style="color: #e67e22; font-weight: bold; display: none;">Génération du lien en cours...</p>
         
-        <!-- Boîte affichant le lien court à copier -->
         <div id="link-result-container">
             <p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Lien à envoyer au client :</p>
             <input type="text" id="short-link-result" readonly style="width: 250px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -182,7 +181,6 @@
         </div>
     </div>
 
-    <!-- PANNEAU CLIENT -->
     <div id="client-panel" class="control-panel">
         <h2 style="margin-top: 0; color: #1e3a8a;">Signature du Contrat</h2>
         <div style="background: #eef2f5; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: left; font-size: 13px;">
@@ -195,7 +193,6 @@
         <button onclick="downloadPDF()" style="background-color:#2ecc71; padding: 15px 25px; font-size: 16px; width: 100%;">⬇️ Télécharger le contrat signé (PDF)</button>
     </div>
 
-    <!-- OUTIL DE TAMPON POUR DOCUMENTS EXTERNES -->
     <div id="custom-tool-panel">
         <h3 style="margin-top:0; color:#1e3a8a;">Outil : Tamponner un document</h3>
         <p style="font-size: 12px; margin-bottom: 10px;">Importez une image (permis, passeport, etc.), placez le cachet, et téléchargez l'image finale.</p>
@@ -215,9 +212,7 @@
         </div>
     </div>
 
-    <!-- ZONE DE CONTENU POUR LE PDF -->
     <div id="pdf-content">
-        <!-- PAGE 1: CONTRAT -->
         <div class="page" id="page-1">
             <div class="header">
                 <div class="logo-text">BLACK IRIS CARS</div>
@@ -234,7 +229,6 @@
             </div>
 
             <div class="grid-2">
-                <!-- COLONNE GAUCHE -->
                 <div class="col">
                     <div class="section-header">LE LOCATAIRE</div>
                     <div class="field-group"><label>NOM :</label><input type="text" id="nom" class="data-input"></div>
@@ -260,7 +254,6 @@
                     <div class="field-group"><label>Heure :</label><input type="text" id="heure_rendu" class="data-input"></div>
                 </div>
 
-                <!-- COLONNE DROITE -->
                 <div class="col">
                     <div class="section-header">LE VÉHICULE EN LOCATION</div>
                     <div class="field-group"><label>MARQUE / Modél :</label><input type="text" id="marque" class="data-input"></div>
@@ -331,7 +324,6 @@
             </div>
         </div>
 
-        <!-- PAGE 2: CONDITIONS -->
         <div class="page" id="page-2">
             <div class="page-2-content">
                 <h2 style="text-align: center; color: #000; margin-top: 0;">CONDITION GENERALES DE LOCATION</h2>
@@ -341,7 +333,6 @@
                 </div>
 
                 <div class="conditions-grid">
-                    <!-- COLONNE GAUCHE -->
                     <div class="conditions-col">
                         <h3>Article Premier : UTILISATION DE LA VOITURE</h3>
                         <p>Le locataire s'engage à ne pas laisser conduire la voiture par d'autres personnes qui lui-même ou celles agréées par le loueur et dont il se porte garant, et à n'utiliser le véhicule que pour ses besoins personnels. Il est interdit de participer à toute compétition, quelle soit, et d'utiliser la véhicule à des fins illicites, ou des transports de marchandises. Le locataire s'engage à ne pas solliciter directement des documents douaniers. Il est interdit au locataire de surcharger le véhicule loué en transportant un nombre de passagers supérieur à celui porté sur le contrat, sous peine d'être déchu de l'Assurance.</p>
@@ -356,7 +347,6 @@
                         <p>L'usure mécanique normal est à la charge du loueur toutes les réparations provenant, soit d'une usure anormale, soit d'une négligence de la part du locataire ou d'une cause accidentelle seront à sa charge et exécutée par nos soins. Dans le cas ou la véhicule serait immobilisée en dehors de la région. Les réparations qu'elles soient dures à l'usure normale ou à une cause accidentelle, ne seront exécutées qu'après accord télégraphique du loueur ou par l'agent régional de la marque du véhicule. Elles devront faire l'objet d'une facture acquittée et très détaillée. Les pièces défectueuses remplacées devront être présentées avec la facture acquittée. En aucun cas et en aucune circonstance, le locataire ne pourra réclamer des dommages et intérêts, soit pour retard de la remise de la voiture; ou annulation de la location, soit pour immobilisation dans le cas de réparation nécessitées par l'usure normale et effectuées au cours de la location. La responsabilité de personne ou de choses ayant pu résulter de vices ou de défauts de construction ou de réparations antérieures.</p>
                     </div>
 
-                    <!-- COLONNE DROITE -->
                     <div class="conditions-col">
                         <h3>Article 5 : ASSURANCES</h3>
                         <p>1°) contre le vol et incendie de véhicule loué à l'exclusion de vêtement et de tout les objets transportés.<br>
@@ -392,9 +382,7 @@
                 </div>
             </div>
         </div>
-    </div> <!-- FIN DU CONTENU PDF -->
-
-    <script>
+    </div> <script>
         // --- LOGIQUE POUR REDIMENSIONNER LE CACHET ---
         let currentStampScale = 1;
         function resizeStamp(dir) {
@@ -409,7 +397,7 @@
             });
         }
 
-        // --- GENERATION DU PDF ---
+        // --- GENERATION DU PDF SANS BUG DE ZOOM ---
         function downloadPDF() {
             document.getElementById('pdf-content').classList.add('pdf-mode');
             const element = document.getElementById('pdf-content');
@@ -586,12 +574,13 @@
             alert("Lien copié ! Vous pouvez l'envoyer au client.");
         }
 
-        // --- MODE CLIENT ---
+        // --- VÉRIFICATION DU MOT DE PASSE ET MODE ---
         function checkUrlMode() {
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode'); 
             const dataParam = urlParams.get('data');
 
+            // 1. SI C'EST UN CLIENT (Pas de mot de passe requis)
             if (mode === 'client') {
                 if (dataParam) {
                     try {
@@ -604,7 +593,7 @@
                         }
 
                         document.body.classList.add('client-mode');
-                        document.getElementById('admin-panel').style.display = 'none';
+                        document.getElementById('pdf-content').style.display = 'flex';
                         document.getElementById('client-panel').style.display = 'block';
 
                         for (const [id, value] of Object.entries(payload.data)) { 
@@ -631,6 +620,18 @@
                             }
                         }
                     } catch (e) { console.error("Erreur de chargement.", e); }
+                }
+            } 
+            // 2. SI C'EST L'ADMINISTRATEUR (Le lien de base de votre site)
+            else {
+                // MODIFIEZ LE MOT DE PASSE ICI SI BESOIN
+                let password = prompt("Veuillez entrer le mot de passe Administrateur :");
+                
+                if (password === "Iris2026") {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('pdf-content').style.display = 'flex';
+                } else {
+                    document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:100px; font-family:Arial;'>🔒 Accès Refusé</h2>";
                 }
             }
         }
