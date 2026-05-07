@@ -11,8 +11,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
         :root {
-            --primary: #0f172a; /* Slate 900 */
-            --accent: #2563eb; /* Blue 600 */
+            --primary: #0f172a; 
+            --accent: #2563eb; 
             --accent-hover: #1d4ed8;
             --bg-main: #e2e8f0;
             --bg-paper: #ffffff;
@@ -42,9 +42,9 @@
             padding: 25px 35px;
             border-radius: 16px;
             margin-bottom: 25px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
             text-align: center;
-            width: 210mm;
+            width: 800px;
             max-width: 100%;
             border: 1px solid #e2e8f0;
         }
@@ -68,29 +68,29 @@
         }
         .btn:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
         .btn-danger { background-color: var(--danger); box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); }
-        .btn-danger:hover { background-color: #dc2626; }
         .btn-success { background-color: var(--success); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); }
-        .btn-success:hover { background-color: #059669; }
         .btn-secondary { background-color: #64748b; box-shadow: none; }
-        .btn-secondary:hover { background-color: #475569; }
 
-        /* --- DOCUMENT PDF (A4 STRICT & SYMETRIQUE) --- */
-        #pdf-wrapper { display: none; flex-direction: column; align-items: center; width: 210mm; }
+        /* --- DOCUMENT (A4 STRICT) --- */
+        #pdf-wrapper { display: none; flex-direction: column; align-items: center; width: 800px; max-width: 100%; }
 
         .a4-page {
-            width: 210mm;
-            height: 297mm; 
+            width: 800px;
+            height: 1131px; 
             background: var(--bg-paper);
-            padding: 12mm 15mm; 
+            padding: 40px 50px; 
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             margin-bottom: 25px;
             position: relative;
             border-radius: 8px;
             overflow: hidden; 
+            flex-shrink: 0;
         }
 
-        .pdf-mode { padding: 0; margin: 0; background: white; }
-        .pdf-mode .a4-page { box-shadow: none; margin-bottom: 0; border-radius: 0; }
+        /* --- MODE PDF (Forcage strict de la taille pour éviter le zoom) --- */
+        .pdf-mode { padding: 0 !important; margin: 0 !important; background: white !important; }
+        .pdf-mode #pdf-wrapper { width: 800px !important; max-width: none !important; }
+        .pdf-mode .a4-page { width: 800px !important; height: 1131px !important; box-shadow: none !important; margin: 0 !important; border-radius: 0 !important; transform: none !important; }
 
         /* HEADER CONTRAT */
         .doc-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 12px; margin-bottom: 15px; }
@@ -101,7 +101,7 @@
         .doc-title-bar span { font-size: 16px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
         .doc-title-bar input { font-size: 16px; font-weight: 800; color: var(--danger); border: none; border-bottom: 2px solid var(--danger); width: 100px; text-align: center; outline: none; background: transparent; margin-left: 10px; }
 
-        /* DESIGN TABULAIRE (Le secret de la symétrie parfaite) */
+        /* DESIGN TABULAIRE */
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
         .col-box { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
         
@@ -113,12 +113,23 @@
         .row-label { width: 120px; padding: 6px 10px; font-size: 10px; font-weight: 700; color: var(--text-muted); background: #f8fafc; border-right: 1px solid #f1f5f9; display: flex; align-items: center; text-transform: uppercase; }
         .row-input-wrapper { flex: 1; padding: 4px 8px; display: flex; align-items: center; }
         
-        .row-input-wrapper input, .row-input-wrapper textarea { width: 100%; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-dark); outline: none; font-family: 'Inter', sans-serif; }
+        /* CORRECTION : Ne s'applique pas aux boutons radio */
+        .row-input-wrapper input:not([type="radio"]), .row-input-wrapper textarea { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: var(--text-dark); 
+            outline: none; 
+            font-family: 'Inter', sans-serif; 
+        }
         .row-input-wrapper textarea { resize: none; height: 32px; line-height: 16px; overflow: hidden; }
 
-        /* Sections spéciales */
-        .fuel-radios { display: flex; gap: 15px; font-size: 11px; font-weight: 600; }
-        .fuel-radios label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        /* Sections spéciales (Boutons Radio Réparés) */
+        .fuel-radios { display: flex; gap: 15px; font-size: 11px; font-weight: 600; align-items: center; }
+        .fuel-radios label { display: flex; align-items: center; gap: 5px; cursor: pointer; margin: 0; }
+        .fuel-radios input[type="radio"] { width: auto; margin: 0; cursor: pointer; }
 
         .split-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #f1f5f9; }
         .split-row > div { display: flex; }
@@ -337,10 +348,12 @@
             </div>
         </div>
 
+        <div class="html2pdf__page-break"></div>
+
         <div class="a4-page" id="page-2">
             <h2 style="text-align: center; color: var(--primary); margin-top: 0; font-size: 15px; font-weight:800;">CONDITIONS GENERALES DE LOCATION</h2>
             
-            <div class="conditions-intro">
+            <div style="font-size: 11px; text-align: justify; margin-bottom: 10px;">
                 Le présent contrat a été établi et prend date comme indiqué au Verso. Il engage la société de location de voiture BLACK IRIS CARS qui sera appelée le « loueur » et la personne, société ou compagnie par qui est signé ce contrat, qui sera dénommé « le locataire ».
             </div>
 
@@ -497,7 +510,7 @@
             document.execCommand("copy");
         }
 
-        // --- PDF GENERATION ---
+        // --- PDF GENERATION (STRICT A4) ---
         function downloadPDF() {
             document.body.classList.add('pdf-mode');
             const element = document.getElementById('pdf-wrapper');
@@ -507,8 +520,10 @@
                 margin: 0,
                 filename: `Contrat_Black_Iris_Cars_${clientName}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                /* Forcage strict de la largeur d'écran pour html2canvas */
+                html2canvas: { scale: 2, useCORS: true, windowWidth: 800, width: 800 },
+                /* Format final en pixels correspondants pour éviter le zoom */
+                jsPDF: { unit: 'px', format: [800, 1131], orientation: 'portrait' }
             }).from(element).save().then(() => {
                 document.body.classList.remove('pdf-mode');
             });
